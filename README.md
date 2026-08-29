@@ -1,50 +1,50 @@
 # personal-agent-skills
 
-Claude Code と Codex で共用する、自作 Agent Skills の保存リポジトリ。
+A repository for custom Agent Skills shared between Claude Code and Codex.
 
-## 構成
+## Structure
 
 ```text
-skills/<skill-name>/       スキル本体（唯一の編集元）
-.claude/skills/            Claude Code 用リンク
-.agents/skills/            Codex 用リンク
-scripts/new-skill          スキルの雛形作成とリンク生成
-scripts/link-skills        既存スキルのリンク再生成
-scripts/validate-skills    全スキルの簡易検証
+skills/<skill-name>/       Canonical skill source
+.claude/skills/            Links for Claude Code
+.agents/skills/            Links for Codex
+scripts/new-skill          Create a skill scaffold and discovery links
+scripts/link-skills        Recreate discovery links for existing skills
+scripts/validate-skills    Validate all skills
 ```
 
-各スキルは `SKILL.md` を必須とし、必要に応じて `scripts/`、`references/`、`assets/`、`agents/openai.yaml` を追加する。
+Every skill requires a `SKILL.md` file. Add `scripts/`, `references/`, `assets/`, or `agents/openai.yaml` only when needed.
 
-## 新しいスキル
+## Create a skill
 
 ```sh
 ./scripts/new-skill my-skill
 ```
 
-生成後、`skills/my-skill/SKILL.md` の説明と本文を編集する。Claude Code と Codex の探索先には同じスキルへの相対リンクが作成される。
+After creating the scaffold, edit the description and instructions in `skills/my-skill/SKILL.md`. The script creates relative links to the same skill in the Claude Code and Codex discovery directories.
 
-既存 clone で探索用リンクを再生成する場合:
+To recreate discovery links in an existing clone:
 
 ```sh
 ./scripts/link-skills
 ```
 
-## 検証
+## Validate
 
 ```sh
 ./scripts/validate-skills
 ```
 
-検証対象はディレクトリ名、`SKILL.md` の存在、YAML frontmatter、必須の `name` と `description`、探索用リンク。
+Validation checks directory names, the presence of `SKILL.md`, YAML frontmatter, the required `name` and `description` fields, unfinished template placeholders, and discovery links.
 
-## 運用方針
+## Conventions
 
-- スキル名は小文字英数字とハイフンのみ、64 文字未満
-- 汎用的な指示は短く保ち、詳細資料は `references/` に分離
-- 決定的な処理が必要な場合だけ `scripts/` を追加
-- 製品固有の frontmatter は原則避け、Claude Code と Codex の共通形式を優先
-- 秘密情報、認証情報、端末固有の絶対パスはコミットしない
+- Use only lowercase letters, digits, and hyphens in skill names. Keep names under 64 characters.
+- Keep general instructions concise and move conditional details into `references/`.
+- Add scripts only when deterministic behavior is necessary.
+- Prefer frontmatter supported by both Claude Code and Codex over product-specific fields.
+- Do not commit secrets, credentials, or machine-specific absolute paths.
 
-## 利用
+## Usage
 
-このリポジトリ直下、またはその配下で各エージェントを起動する。新しいトップレベルの skills ディレクトリが実行中に追加された場合は、エージェントを再起動する。
+Start either agent from this repository or one of its subdirectories. If a top-level skills directory is created while an agent is running, restart the agent so it can discover the new directory.
