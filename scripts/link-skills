@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+
+mkdir -p "$repo_root/.claude/skills" "$repo_root/.agents/skills"
+
+count=0
+for skill_dir in "$repo_root"/skills/*; do
+  [ -d "$skill_dir" ] || continue
+  skill_name=$(basename "$skill_dir")
+
+  for host in .claude .agents; do
+    link="$repo_root/$host/skills/$skill_name"
+    if [ -e "$link" ] && [ ! -L "$link" ]; then
+      echo "Refusing to replace non-symlink: $link" >&2
+      exit 1
+    fi
+    if [ -L "$link" ]; then
+      current_target=$(readlink "$link")
+      [ "$current_target" = "../../skills/$skill_name" ] || {
+        echo "Refusing to replace unexpected symlink: $link -> $current_target" >&2
+        exit 1
+      }
+    else
+      ln -s "../../skills/$skill_name" "$link"
+    fi
+  done
+  count=$((count + 1))
+done
+
+echo "Linked $count skill(s) for Claude Code and Codex."

@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  echo "Usage: $0 <skill-name>" >&2
+  exit 2
+}
+
+[ "$#" -eq 1 ] || usage
+
+skill_name=$1
+case "$skill_name" in
+  ''|*[!a-z0-9-]*|-*|*--*|*-)
+    echo "Invalid skill name: use lowercase letters, digits, and single hyphens." >&2
+    exit 2
+    ;;
+esac
+
+[ "${#skill_name}" -lt 64 ] || {
+  echo "Invalid skill name: must be shorter than 64 characters." >&2
+  exit 2
+}
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
+skill_dir="$repo_root/skills/$skill_name"
+
+[ ! -e "$skill_dir" ] || {
+  echo "Skill already exists: $skill_dir" >&2
+  exit 1
+}
+
+# Confirm both host discovery directories can be created before writing the skill.
+mkdir -p "$repo_root/.claude/skills" "$repo_root/.agents/skills"
+mkdir "$skill_dir"
+sed "s/__SKILL_NAME__/$skill_name/g" "$repo_root/templates/skill/SKILL.md" > "$skill_dir/SKILL.md"
+
+"$script_dir/link-skills"
+
+echo "Created skills/$skill_name"
+echo "Edit skills/$skill_name/SKILL.md, then run ./scripts/validate-skills"
