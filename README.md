@@ -48,3 +48,7 @@ Validation checks directory names, the presence of `SKILL.md`, YAML frontmatter,
 ## Usage
 
 Start either agent from this repository or one of its subdirectories. If a top-level skills directory is created while an agent is running, restart the agent so it can discover the new directory.
+
+## License
+
+CC0 or MIT license
